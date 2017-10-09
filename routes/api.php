@@ -16,3 +16,18 @@ use Illuminate\Http\Request;
 Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
+
+Route::group([
+//    'middleware' => 'cors',
+    'prefix' => 'v1',
+], function() {
+    // test
+    Route::get('/cheyy', function (Request $request) {
+        return 'hello cheyy';
+    });
+
+    //Auth
+    Route::post('user/login', 'AuthController@login'); //登录认证
+
+    Route::get('categories', 'CategoriesController@index'); //获取文章的分类
+});
