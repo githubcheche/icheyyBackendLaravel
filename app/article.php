@@ -4,6 +4,10 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * Class article 文章模型
+ * @package App
+ */
 class article extends Model
 {
     /**
@@ -15,6 +19,10 @@ class article extends Model
         'title', 'body', 'user_id'
     ];
 
+    /**
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
     public function tags()
     {
         return $this->belongsToMany(Tag::class)->withTimestamps();
