@@ -4,26 +4,32 @@ namespace App\Http\Controllers;
 
 use App\Article;
 use App\Category;
-use Cache;
 use Auth;
+use Illuminate\Support\Facades\Cache;
 use Validator;
-use App\Repositories\ArticleRepository;
 use Illuminate\Http\Request;
 
 class ArticlesController extends Controller
 {
-    protected $articleRepository;
 
-    public function __construct(ArticleRepository $articleRepository)
+
+    public function __construct()
     {
-        $this->articleRepository = $articleRepository;
-        $this->middleware('jwt.auth', [
-            'only' => ['store', 'update', 'destroy']
-        ]);
+
     }
 
-    public function index(Request $request)
+    public function index()
     {
+
+            return Cache::tags('articles')->remember('articles', $minutes = 10, function() {
+
+                return Article::with("cheyy")->latest('created_at')->paginate(30);
+            });
+
+    }
+
+//    public function index(Request $request)
+//    {
 //        $page = 1;
 //
 //        if ($request->input('page')) {
@@ -37,8 +43,8 @@ class ArticlesController extends Controller
 //        }
 
 //        return $this->responseError('查询失败');
-        return 'page'.$request->input('page');
-    }
+//        return 'page'.$request->input('page');
+//    }
 
     /**
      * Show the form for creating a new resource.
