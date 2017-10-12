@@ -4,6 +4,10 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * Class article 文章模型
+ * @package App
+ */
 class article extends Model
 {
     /**
@@ -15,15 +19,25 @@ class article extends Model
         'title', 'body', 'user_id'
     ];
 
+    /**
+     *　获取用户的所有文章
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
+
+
+
+
     public function tags()
     {
         return $this->belongsToMany(Tag::class)->withTimestamps();
     }
 
-    public function user()
-    {
-        return $this->belongsTo(User::class);
-    }
+
 
     public function category()
     {

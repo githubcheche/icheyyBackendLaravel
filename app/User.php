@@ -20,12 +20,22 @@ class User extends Authenticatable
 
     /**
      * The attributes that should be hidden for arrays.
-     * new对象时不可填充字段，隐藏
+     * 隐藏返回字段
      * @var array
      */
     protected $hidden = [
         'password', 'remember_token',
     ];
+
+
+
+
+
+
+
+
+
+
 
     public function setPasswordAttribute($password)
     {
