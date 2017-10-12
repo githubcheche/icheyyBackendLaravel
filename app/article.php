@@ -21,12 +21,27 @@ class article extends Model
 
     /**
      *　获取用户的所有文章
+     *  一对一
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function user()
     {
         return $this->belongsTo(User::class);
     }
+
+    //
+
+    /**
+     * 限制寻找 帖子没有被隐藏
+     * @param $query
+     * @return mixed
+     */
+    public function scopeNotHidden($query)
+    {
+        return $query->where('is_hidden', 'F');
+    }
+
+
 
 
 
@@ -44,11 +59,7 @@ class article extends Model
         return $this->belongsTo(Category::class);
     }
 
-    //帖子没有被隐藏
-    public function scopeNotHidden($query)
-    {
-        return $query->where('is_hidden', 'F');
-    }
+
 
     public function comments()
     {
