@@ -19,7 +19,9 @@ class ArticlesController extends Controller
     public function __construct(){}
 
     /**
+     * 获取所有文章
      * GET /articles
+     * /articles?tag=
      * @param Request $request
      * @return string
      */
