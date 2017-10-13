@@ -190,7 +190,7 @@ class ArticlesController extends Controller
      */
     public function getArticles($page, $request)
     {
-        Cache::tags('articles')->flush();
+//        Cache::tags('articles')->flush();
         if (empty($request->tag)) {//没有tag参数
             return Cache::tags('articles')->remember('articles' . $page, $minutes = 10, function() {
                 return Article::notHidden()->with('user', 'tags', 'category')->latest('created_at')->paginate(30);
