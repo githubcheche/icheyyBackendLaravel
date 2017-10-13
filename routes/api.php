@@ -31,5 +31,5 @@ Route::group([
 
     //文章分类
     Route::resource('articles', 'ArticlesController'); //所有文章
-    Route::get('categories', 'CategoriesController@index'); //获取文章的分类
+    Route::resource('tags', 'TagsController'); //标签
 });
