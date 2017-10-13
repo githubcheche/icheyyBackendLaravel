@@ -49,17 +49,20 @@ class Article extends Model
         return $this->belongsToMany(Tag::class)->withTimestamps();
     }
 
-
-
-
-
-
-
-
+    /**
+     * 取得文章的类别
+     * 一对一
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function category()
     {
         return $this->belongsTo(Category::class);
     }
+
+
+
+
+
 
 
 

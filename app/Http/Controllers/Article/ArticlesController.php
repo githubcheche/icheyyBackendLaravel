@@ -50,6 +50,29 @@ class ArticlesController extends Controller
     public function create(){}
 
     /**
+     * Display the specified resource.
+     * 查看指定文章
+     * GET /articles/{id}
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function show($id)
+    {
+        $article = $this->getArticle($id);
+
+        if (! empty($article)) {
+            return $this->responseSuccess('OK', $article->toArray());
+        }
+
+        return $this->responseError('查询失败');
+    }
+
+
+
+
+
+
+    /**
      * 保存文章
      * POST /articles
      * @param  \Illuminate\Http\Request  $request
@@ -86,23 +109,7 @@ class ArticlesController extends Controller
         return $this->responseSuccess('OK', $article);
     }
 
-    /**
-     * Display the specified resource.
-     * 查看指定文章
-     * GET /articles/{id}
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id)
-    {
-        $article = $this->getArticle($id);
 
-        if (! empty($article)) {
-            return $this->responseSuccess('OK', $article->toArray());
-        }
-
-        return $this->responseError('查询失败');
-    }
 
     /**
      * Show the form for editing the specified resource.
@@ -155,10 +162,22 @@ class ArticlesController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy($id){}
+
+    /**
+     * 获取热门文章
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function hotArticles()
     {
-        //
+        if (empty($hotArticles = Cache::get('hotArticles_cache'))) {
+            //按评论数排序，取１０个
+            $hotArticles = Article::where([])->orderBy('comments_count', 'desc')->latest('updated_at')->take(10)->get();
+            Cache::put('hotArticles_cache', $hotArticles, 10);
+        }
+        return $this->responseSuccess('查询成功', $hotArticles);
     }
+
 
 /////////////////////////////////////////////////////////////////////////////////////
 
@@ -171,17 +190,17 @@ class ArticlesController extends Controller
      */
     public function getArticles($page, $request)
     {
-//        Cache::tags('articles')->flush();
+        Cache::tags('articles')->flush();
         if (empty($request->tag)) {//没有tag参数
             return Cache::tags('articles')->remember('articles' . $page, $minutes = 10, function() {
-                return Article::notHidden()->with('user', 'tags'/*, 'category'*/)->latest('created_at')->paginate(30);
+                return Article::notHidden()->with('user', 'tags', 'category')->latest('created_at')->paginate(30);
             });
         } else {
             return Cache::tags('articles')->remember('articles' . $page . $request->tag, $minutes = 10, function() use ($request) {
                 //查找有tags的文章，并且tag表中的name与url中的tag参数相同
                 return Article::notHidden()->whereHas('tags', function ($query) use ($request) {
                     $query->where('name', $request->tag);
-                })->with('user', 'tags'/*, 'category'*/)->latest('created_at')->paginate(30);
+                })->with('user', 'tags', 'category')->latest('created_at')->paginate(30);
             });
         }
     }
@@ -195,19 +214,14 @@ class ArticlesController extends Controller
     {
         $article = Article::where('id', $id);
         $article->increment('view_count', 1);//查看数加1
-        return $article->with('user', 'tags' /*,'category'*/)->first();
+        return $article->with('user', 'tags' ,'category')->first();
     }
 
 
 
-    public function hotArticles()
-    {
-        if (empty($hotArticles = Cache::get('hotArticles_cache'))) {
-            $hotArticles = Article::where([])->orderBy('comments_count', 'desc')->latest('updated_at')->take(10)->get();
-            Cache::put('hotArticles_cache', $hotArticles, 10);
-        }
-        return $this->responseSuccess('查询成功', $hotArticles);
-    }
+
+
+
 
     function contentImage(Request $request)
     {
