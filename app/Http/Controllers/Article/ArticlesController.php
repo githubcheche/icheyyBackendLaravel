@@ -1,10 +1,12 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Article;
 
 use App\Article;
 use App\Category;
+use App\Http\Controllers\Controller;
 use Auth;
+
 use Illuminate\Support\Facades\Cache;
 use Validator;
 use Illuminate\Http\Request;
@@ -169,16 +171,17 @@ class ArticlesController extends Controller
      */
     public function getArticles($page, $request)
     {
+//        Cache::tags('articles')->flush();
         if (empty($request->tag)) {//没有tag参数
             return Cache::tags('articles')->remember('articles' . $page, $minutes = 10, function() {
-                return Article::notHidden()->with('user'/*, 'tags', 'category'*/)->latest('created_at')->paginate(30);
+                return Article::notHidden()->with('user', 'tags'/*, 'category'*/)->latest('created_at')->paginate(30);
             });
         } else {
             return Cache::tags('articles')->remember('articles' . $page . $request->tag, $minutes = 10, function() use ($request) {
                 //查找有tags的文章，并且tag表中的name与url中的tag参数相同
                 return Article::notHidden()->whereHas('tags', function ($query) use ($request) {
                     $query->where('name', $request->tag);
-                })->with('user'/*, 'tags', 'category'*/)->latest('created_at')->paginate(30);
+                })->with('user', 'tags'/*, 'category'*/)->latest('created_at')->paginate(30);
             });
         }
     }
@@ -192,7 +195,7 @@ class ArticlesController extends Controller
     {
         $article = Article::where('id', $id);
         $article->increment('view_count', 1);//查看数加1
-        return $article->with('user'/*, 'tags' ,'category'*/)->first();
+        return $article->with('user', 'tags' /*,'category'*/)->first();
     }
 
 

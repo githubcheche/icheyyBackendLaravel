@@ -26,10 +26,11 @@ Route::group([
         return 'hello cheyy';
     });
 
-    //Auth
-    Route::post('user/login', 'AuthController@login'); //登录认证
+//    //Auth
+//    Route::post('user/login', 'AuthController@login'); //登录认证
 
     //文章分类
-    Route::resource('articles', 'ArticlesController'); //所有文章
-    Route::resource('tags', 'TagsController'); //标签
+    Route::resource('articles', 'Article\ArticlesController'); //所有文章
+    Route::resource('tags', 'Article\TagsController'); //标签
+    Route::get('hot_tags', 'Article\TagsController@hotTags'); //获取分类标签
 });

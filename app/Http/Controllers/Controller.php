@@ -11,7 +11,10 @@ class Controller extends BaseController
 {
     use AuthorizesRequests, DispatchesJobs, ValidatesRequests;
 
-    /** 以下为出错处理
+    /**
+     * 状态
+     * ＝１成功
+     *
      * @var int
      */
     protected $status = 1;
@@ -25,6 +28,7 @@ class Controller extends BaseController
     }
 
     /**
+     * 设置状态
      * @param $status
      * @return $this
      */
@@ -35,6 +39,7 @@ class Controller extends BaseController
     }
 
     /**
+     * 错误返回
      * @param $message
      * @param array|NULL $data
      * @return \Illuminate\Http\JsonResponse
@@ -45,6 +50,7 @@ class Controller extends BaseController
     }
 
     /**
+     * 返回成功信息
      * @param $message
      * @param array|NULL $data
      * @return \Illuminate\Http\JsonResponse
@@ -55,6 +61,7 @@ class Controller extends BaseController
     }
 
     /**
+     * 返回信息格式json
      * @param $message
      * @param array|NULL $data
      * @return \Illuminate\Http\JsonResponse

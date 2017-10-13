@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
  * Class article 文章模型
  * @package App
  */
-class article extends Model
+class Article extends Model
 {
     /**
      * The attributes that are mass assignable.
@@ -29,8 +29,6 @@ class article extends Model
         return $this->belongsTo(User::class);
     }
 
-    //
-
     /**
      * 限制寻找 帖子没有被隐藏
      * @param $query
@@ -41,16 +39,20 @@ class article extends Model
         return $query->where('is_hidden', 'F');
     }
 
-
-
-
-
-
-
+    /**
+     * 取得文章的所有tags
+     * 多对多
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
     public function tags()
     {
         return $this->belongsToMany(Tag::class)->withTimestamps();
     }
+
+
+
+
+
 
 
 
