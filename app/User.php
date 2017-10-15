@@ -27,20 +27,25 @@ class User extends Authenticatable
         'password', 'remember_token',
     ];
 
-
-
-
-
-
-
-
-
-
-
+    /**
+     * 加密密码
+     * @param $password
+     * @return string
+     */
     public function setPasswordAttribute($password)
     {
         return $this->attributes['password'] = \Hash::make($password);
     }
+
+
+
+
+
+
+
+
+
+
 
     public function likes()
     {

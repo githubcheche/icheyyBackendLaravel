@@ -26,8 +26,11 @@ Route::group([
         return 'hello cheyy';
     });
 
-//    //Auth
-//    Route::post('user/login', 'AuthController@login'); //登录认证
+    //Auth
+    Route::any('user/login', 'AuthController@login'); //登录认证
+    Route::post('user/register', 'AuthController@register'); //注册
+    Route::get('user/logout', 'AuthController@logout'); //退出
+
 
     //文章分类
     Route::resource('articles', 'Article\ArticlesController'); //所有文章
