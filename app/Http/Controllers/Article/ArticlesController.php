@@ -6,10 +6,8 @@ use App\Article;
 use App\Category;
 use App\Http\Controllers\Controller;
 use App\Tag;
-use Auth;
 
 use Carbon\Carbon;
-use Illuminate\Support\Facades\Cache;
 use Validator;
 use Illuminate\Http\Request;
 
@@ -22,7 +20,7 @@ class ArticlesController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('jwt_auth', [
+        $this->middleware('jwt.auth', [
             'only' => ['store', 'update', 'destroy']
         ]);
     }
@@ -57,6 +55,7 @@ class ArticlesController extends Controller
     //GET /articles/create
     public function create()
     {
+        //
     }
 
     /**
@@ -64,7 +63,7 @@ class ArticlesController extends Controller
      * 查看指定文章
      * GET /articles/{id}
      * @param  int $id
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\JsonResponse
      */
     public function show($id)
     {
@@ -82,7 +81,7 @@ class ArticlesController extends Controller
      * 创建保存文章
      * POST /articles
      * @param  \Illuminate\Http\Request $request
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\JsonResponse
      */
     public function store(Request $request)
     {
@@ -102,7 +101,7 @@ class ArticlesController extends Controller
         $data = [
             'title' => $request->get('title'),
             'body' => $request->get('body'),
-            'user_id' => Auth::id(),
+            'user_id' => \Auth::id(),
             'is_hidden' => $request->get('is_hidden'),
             'category_id' => $request->get('category'),
             'last_comment_time' => Carbon::now(),
@@ -110,9 +109,9 @@ class ArticlesController extends Controller
         $article = Article::create($data);
         $article->increment('category_id');
         Category::find($request->get('category'))->increment('articles_count');
-        Auth::user()->increment('articles_count');
+        \Auth::user()->increment('articles_count');
         $article->tags()->attach($tags);
-        Cache::tags('articles')->flush();
+        \Cache::tags('articles')->flush();
         return $this->responseSuccess('OK', $article);
     }
 
@@ -126,6 +125,7 @@ class ArticlesController extends Controller
      */
     public function edit($id)
     {
+        //
     }
 
     /**
@@ -134,7 +134,7 @@ class ArticlesController extends Controller
      *  PUT/PATCH /articles/{id}
      * @param  \Illuminate\Http\Request $request
      * @param  int $id
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\JsonResponse
      */
     public function update(Request $request, $id)
     {
@@ -150,17 +150,17 @@ class ArticlesController extends Controller
             return $this->responseError('表单验证失败', $validator->errors()->toArray());
         }
 
-        $tags = $this->articleRepository->normalizeTopics($request->get('tag'));
+        $tags = $this->normalizeTopics($request->get('tag'));
         $data = [
             'title' => $request->get('title'),
             'body' => $request->get('body'),
             'is_hidden' => $request->get('is_hidden'),
             'category_id' => $request->get('category'),
         ];
-        $article = $this->articleRepository->byId($id);
-        $article->update($data);
-        $article->tags()->sync($tags);
-        Cache::tags('articles')->flush();
+        $article = Article::find($id);//取出文章
+        $article->update($data);//更新文章
+        $article->tags()->sync($tags);//更新tag
+        \Cache::tags('articles')->flush();//清除文章cache缓存
         return $this->responseSuccess('OK', $article);
     }
 
@@ -173,6 +173,7 @@ class ArticlesController extends Controller
      */
     public function destroy($id)
     {
+        //
     }
 
     /**
@@ -181,10 +182,10 @@ class ArticlesController extends Controller
      */
     public function hotArticles()
     {
-        if (empty($hotArticles = Cache::get('hotArticles_cache'))) {
+        if (empty($hotArticles = \Cache::get('hotArticles_cache'))) {
             //按评论数排序，取１０个
             $hotArticles = Article::where([])->orderBy('comments_count', 'desc')->latest('updated_at')->take(10)->get();
-            Cache::put('hotArticles_cache', $hotArticles, 10);
+            \Cache::put('hotArticles_cache', $hotArticles, 10);
         }
         return $this->responseSuccess('查询成功', $hotArticles);
     }
@@ -203,11 +204,11 @@ class ArticlesController extends Controller
     {
 //        Cache::tags('articles')->flush();
         if (empty($request->tag)) {//没有tag参数
-            return Cache::tags('articles')->remember('articles' . $page, $minutes = 10, function () {
+            return \Cache::tags('articles')->remember('articles' . $page, $minutes = 10, function () {
                 return Article::notHidden()->with('user', 'tags', 'category')->latest('created_at')->paginate(30);
             });
         } else {
-            return Cache::tags('articles')->remember('articles' . $page . $request->tag, $minutes = 10, function () use ($request) {
+            return \Cache::tags('articles')->remember('articles' . $page . $request->tag, $minutes = 10, function () use ($request) {
                 //查找有tags的文章，并且tag表中的name与url中的tag参数相同
                 return Article::notHidden()->whereHas('tags', function ($query) use ($request) {
                     $query->where('name', $request->tag);
@@ -228,13 +229,20 @@ class ArticlesController extends Controller
         return $article->with('user', 'tags', 'category')->first();
     }
 
+    /**
+     * 返回tag的id数组
+     * @param $tags
+     * @return array
+     */
     public function normalizeTopics($tags)
     {
+        // collect创建集合实例，map循环每个元素
         return collect($tags)->map(function ($tag) {
-            if (is_numeric($tag)) {
-                Tag::find($tag)->increment('articles_count');
+            if (is_numeric($tag)) {//是数字
+                Tag::find($tag)->increment('articles_count');//articles_count自增1
                 return (int)$tag;
             }
+            // tag是字符串，创建新的tag
             $newTag = Tag::create(['name' => $tag, 'articles_count' => 1]);
             return $newTag->id;
         })->toArray();

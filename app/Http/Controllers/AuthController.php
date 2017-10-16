@@ -5,15 +5,17 @@ namespace App\Http\Controllers;
 use App\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
-use JWTAuth;
+
+use Tymon\JWTAuth\Exceptions\JWTException;
+use Tymon\JWTAuth\Exceptions\TokenBlacklistedException;
 use Validator;
 
 class AuthController extends Controller
 {
     public function __construct()
     {
-        // 执行 jwt.auth 认证
-        $this->middleware('jwt_auth', [
+        // jwt_auth 认证中间件
+        $this->middleware('jwt.auth', [
             'only' => ['logout']
         ]);
     }
@@ -64,8 +66,8 @@ class AuthController extends Controller
         ]);
 
         try {
-            // attempt to verify the credentials and create a token for the user
-            if (! $token = JWTAuth::attempt($credentials)) {
+            // 创建令牌
+            if (! $token = \JWTAuth::attempt($credentials)) {
                 return $this->responseError('用户名或密码错误');
             }
             $user = \Auth::user();
@@ -82,13 +84,12 @@ class AuthController extends Controller
             // something went wrong whilst attempting to encode the token
             return $this->responseError('无法创建令牌');
         }
-        return $this->responseSuccess('登录成功', $user->toArray());
     }
 
     public function logout()
     {
         try {
-            JWTAuth::parseToken()->invalidate();
+            \JWTAuth::parseToken()->invalidate();
         } catch (TokenBlacklistedException $e) {
             return $this->responseError('令牌已被列入黑名单');
         } catch (JWTException $e) {
