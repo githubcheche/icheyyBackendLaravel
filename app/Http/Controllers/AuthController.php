@@ -3,11 +3,21 @@
 namespace App\Http\Controllers;
 
 use App\User;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
+use JWTAuth;
 use Validator;
 
 class AuthController extends Controller
 {
+    public function __construct()
+    {
+        // 执行 jwt.auth 认证
+        $this->middleware('jwt_auth', [
+            'only' => ['logout']
+        ]);
+    }
+
     public function register(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -53,26 +63,38 @@ class AuthController extends Controller
             'password' => $request->get('password'),
         ]);
 
-//        try {
-//            // attempt to verify the credentials and create a token for the user
-//            if (! $token = JWTAuth::attempt($credentials)) {
-//                return $this->responseError('用户名或密码错误');
-//            }
-//            $user = Auth::user();
+        try {
+            // attempt to verify the credentials and create a token for the user
+            if (! $token = JWTAuth::attempt($credentials)) {
+                return $this->responseError('用户名或密码错误');
+            }
+            $user = \Auth::user();
 //            if ($user->is_confirmed == 0) {
 //                return $this->responseError('您还未激活该账号，请先前往邮箱激活');
 //            }
-//            // 设置JWT令牌
-//            $user->jwt_token = [
-//                'access_token' => $token,
-//                'expires_in' => Carbon::now()->addMinutes(config('jwt.ttl'))->timestamp
-//            ];
-//            return $this->responseSuccess('登录成功', $user->toArray());
-//        } catch (JWTException $e) {
-//            // something went wrong whilst attempting to encode the token
-//            return $this->responseError('无法创建令牌');
-//        }
-        return $this->responseSuccess('登录成功'/*, $user->toArray()*/);
+            // 设置JWT令牌
+            $user->jwt_token = [
+                'access_token' => $token,
+                'expires_in' => Carbon::now()->addMinutes(config('jwt.ttl'))->timestamp
+            ];
+            return $this->responseSuccess('登录成功', $user->toArray());
+        } catch (JWTException $e) {
+            // something went wrong whilst attempting to encode the token
+            return $this->responseError('无法创建令牌');
+        }
+        return $this->responseSuccess('登录成功', $user->toArray());
+    }
+
+    public function logout()
+    {
+        try {
+            JWTAuth::parseToken()->invalidate();
+        } catch (TokenBlacklistedException $e) {
+            return $this->responseError('令牌已被列入黑名单');
+        } catch (JWTException $e) {
+            // 忽略该异常（Authorization为空时会发生）
+        }
+        return $this->responseSuccess('登出成功');
     }
 
 }

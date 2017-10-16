@@ -73,7 +73,7 @@ class ArticlesController extends Controller
 
 
     /**
-     * 保存文章
+     * 创建保存文章
      * POST /articles
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response

@@ -4,8 +4,9 @@ namespace App;
 
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Tymon\JWTAuth\Contracts\JWTSubject as AuthenticatableUserContract;
 
-class User extends Authenticatable
+class User extends Authenticatable implements AuthenticatableUserContract
 {
     use Notifiable;
 
@@ -37,6 +38,21 @@ class User extends Authenticatable
         return $this->attributes['password'] = \Hash::make($password);
     }
 
+    /**
+     * @return mixed
+     */
+    public function getJWTIdentifier()
+    {
+        return $this->getKey(); // Eloquent model method
+    }
+
+    /**
+     * @return array
+     */
+    public function getJWTCustomClaims()
+    {
+        return [];
+    }
 
 
 

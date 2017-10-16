@@ -18,7 +18,7 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 });
 
 Route::group([
-    'middleware' => 'cors',
+    'middleware' => ['cors'],
     'prefix' => 'v1',
 ], function() {
     // test
@@ -39,8 +39,5 @@ Route::group([
     Route::resource('tags', 'Article\TagsController'); //标签
     Route::get('hot_tags', 'Article\TagsController@hotTags'); //获取分类标签
     Route::get('categories', 'Article\CategoriesController@index'); //获取文章的分类
-
-
-
-
 });
+
