@@ -5,8 +5,10 @@ namespace App\Http\Controllers\Article;
 use App\Article;
 use App\Category;
 use App\Http\Controllers\Controller;
+use App\Tag;
 use Auth;
 
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;
 use Validator;
 use Illuminate\Http\Request;
@@ -18,7 +20,12 @@ use Illuminate\Http\Request;
  */
 class ArticlesController extends Controller
 {
-    public function __construct(){}
+    public function __construct()
+    {
+        $this->middleware('jwt_auth', [
+            'only' => ['store', 'update', 'destroy']
+        ]);
+    }
 
     /**
      * 获取所有文章
@@ -27,19 +34,20 @@ class ArticlesController extends Controller
      * @param Request $request
      * @return string
      */
-    public function index(Request $request){
+    public function index(Request $request)
+    {
         $page = 1;
 
         // 取得page参数
         if ($request->has('page')) {
-            dd('page='.$page);
+            dd('page=' . $page);
             $page = $request->input('page');
         }
 
         // 获取当前页文章
         $articles = $this->getArticles($page, $request);
 
-        if (! empty($articles)) {
+        if (!empty($articles)) {
             return $this->responseSuccess('OK', $articles);
         }
 
@@ -47,20 +55,22 @@ class ArticlesController extends Controller
     }
 
     //GET /articles/create
-    public function create(){}
+    public function create()
+    {
+    }
 
     /**
      * Display the specified resource.
      * 查看指定文章
      * GET /articles/{id}
-     * @param  int  $id
+     * @param  int $id
      * @return \Illuminate\Http\Response
      */
     public function show($id)
     {
         $article = $this->getArticle($id);
 
-        if (! empty($article)) {
+        if (!empty($article)) {
             return $this->responseSuccess('OK', $article->toArray());
         }
 
@@ -68,14 +78,10 @@ class ArticlesController extends Controller
     }
 
 
-
-
-
-
     /**
      * 创建保存文章
      * POST /articles
-     * @param  \Illuminate\Http\Request  $request
+     * @param  \Illuminate\Http\Request $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -92,15 +98,16 @@ class ArticlesController extends Controller
             return $this->responseError('表单验证失败', $validator->errors()->toArray());
         }
 
-        $tags = $this->articleRepository->normalizeTopics($request->get('tag'));
+        $tags = $this->normalizeTopics($request->get('tag'));
         $data = [
             'title' => $request->get('title'),
             'body' => $request->get('body'),
             'user_id' => Auth::id(),
             'is_hidden' => $request->get('is_hidden'),
             'category_id' => $request->get('category'),
+            'last_comment_time' => Carbon::now(),
         ];
-        $article = $this->articleRepository->create($data);
+        $article = Article::create($data);
         $article->increment('category_id');
         Category::find($request->get('category'))->increment('articles_count');
         Auth::user()->increment('articles_count');
@@ -110,25 +117,27 @@ class ArticlesController extends Controller
     }
 
 
-
     /**
      * Show the form for editing the specified resource.
      * 显示编辑文章
      * GET /articles/{id}/edit
-     * @param  int  $id
+     * @param  int $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($id){}
+    public function edit($id)
+    {
+    }
 
     /**
      * Update the specified resource in storage.
      *  编辑更新文章
      *  PUT/PATCH /articles/{id}
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
+     * @param  \Illuminate\Http\Request $request
+     * @param  int $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id){
+    public function update(Request $request, $id)
+    {
         $validator = Validator::make($request->all(), [
             'title' => 'required|between:4,100',
             'body' => 'required|min:10',
@@ -159,10 +168,12 @@ class ArticlesController extends Controller
      * Remove the specified resource from storage.
      * 删除文章
      * DELETE /articles/{id}
-     * @param  int  $id
+     * @param  int $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id){}
+    public function destroy($id)
+    {
+    }
 
     /**
      * 获取热门文章
@@ -192,11 +203,11 @@ class ArticlesController extends Controller
     {
 //        Cache::tags('articles')->flush();
         if (empty($request->tag)) {//没有tag参数
-            return Cache::tags('articles')->remember('articles' . $page, $minutes = 10, function() {
+            return Cache::tags('articles')->remember('articles' . $page, $minutes = 10, function () {
                 return Article::notHidden()->with('user', 'tags', 'category')->latest('created_at')->paginate(30);
             });
         } else {
-            return Cache::tags('articles')->remember('articles' . $page . $request->tag, $minutes = 10, function() use ($request) {
+            return Cache::tags('articles')->remember('articles' . $page . $request->tag, $minutes = 10, function () use ($request) {
                 //查找有tags的文章，并且tag表中的name与url中的tag参数相同
                 return Article::notHidden()->whereHas('tags', function ($query) use ($request) {
                     $query->where('name', $request->tag);
@@ -214,13 +225,20 @@ class ArticlesController extends Controller
     {
         $article = Article::where('id', $id);
         $article->increment('view_count', 1);//查看数加1
-        return $article->with('user', 'tags' ,'category')->first();
+        return $article->with('user', 'tags', 'category')->first();
     }
 
-
-
-
-
+    public function normalizeTopics($tags)
+    {
+        return collect($tags)->map(function ($tag) {
+            if (is_numeric($tag)) {
+                Tag::find($tag)->increment('articles_count');
+                return (int)$tag;
+            }
+            $newTag = Tag::create(['name' => $tag, 'articles_count' => 1]);
+            return $newTag->id;
+        })->toArray();
+    }
 
 
     function contentImage(Request $request)
@@ -228,7 +246,7 @@ class ArticlesController extends Controller
         $file = $request->file('image');
         $filename = md5(time()) . '.' . $file->getClientOriginalExtension();
         $file->move(public_path('../storage/app/public/articleImage'), $filename);
-        $article_image = env('API_URL') . '/storage/articleImage/'.$filename;
+        $article_image = env('API_URL') . '/storage/articleImage/' . $filename;
         return $this->responseSuccess('查询成功', ['url' => $article_image]);
     }
 
