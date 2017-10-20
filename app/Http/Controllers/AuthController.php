@@ -15,7 +15,7 @@ class AuthController extends Controller
     public function __construct()
     {
         // jwt_auth 认证中间件
-        $this->middleware('jwt.auth', [
+        $this->middleware('my.jwt.auth', [
             'only' => ['logout']
         ]);
     }

@@ -1,3 +1,56 @@
+## icheyy社区提供后端API接口
+
+## 运行环境
+
+- Nginx /1.10+
+- PHP 7.0+
+- Mysql 5.6+
+- Redis 3.0+
+
+## 安装
+
+- git clone 
+
+- composer install
+
+- cp .env.example .env
+
+- php artisan key:generate
+
+- php artisan jwt:secret
+
+- 修改.env
+
+  - ```
+    DB_CONNECTION=mysql
+    DB_HOST=127.0.0.1
+    DB_PORT=3306
+    DB_DATABASE=xxxx
+    DB_USERNAME=xxxx
+    DB_PASSWORD=xxxx
+    ```
+
+  - ```
+    CACHE_DRIVER=redis
+    ```
+
+- php artisan migrate
+
+## 扩展包描述
+
+| 扩展包                                      | 一句话描述          | 在本项目中的使用案例           |
+| ---------------------------------------- | -------------- | -------------------- |
+| [barryvdh/laravel-cors](https://packagist.org/packages/barryvdh/laravel-cors) | Laravel 解决跨域问题 | 前后端分离需要使用此扩展包。       |
+| [tymon/jwt-auth](https://github.com/tymon/jwt-auth) | 轻量级的授权和身份认证    | 前后端分离验证用户信息需要用到此扩展包。 |
+
+
+
+
+
+
+
+
+
 <p align="center"><img src="https://laravel.com/assets/img/components/logo-laravel.svg"></p>
 
 <p align="center">
