@@ -15,6 +15,10 @@
 
 - cp .env.example .env
 
+- php artisan key:generate
+
+- php artisan jwt:secret
+
 - 修改.env
 
   - ```
@@ -29,8 +33,6 @@
   - ```
     CACHE_DRIVER=redis
     ```
-
-- php artisan jwt:secret
 
 - php artisan migrate
 
