@@ -36,7 +36,6 @@ class AuthController extends Controller
             'email' => $request->get('email'),
             'name' => $request->get('name'),
             'avatar' => env('API_URL') . '/image/avatar.jpeg',
-            'avatar' => 'no',
             'password' => $request->get('password'),
             'confirm_code' => str_random(60),
         ];
