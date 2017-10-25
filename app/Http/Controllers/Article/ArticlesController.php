@@ -201,6 +201,9 @@ class ArticlesController extends Controller
     function contentImage(Request $request)
     {
         $file = $request->file('image');
+        if($file.isEmptyOrNullString()) {
+            return $this->responseError('上传图片文件为空');
+        }
         $filename = md5(time()) . '.' . $file->getClientOriginalExtension();
         $file->move(public_path('../storage/app/public/articleImage'), $filename);
         $article_image = env('API_URL') . '/storage/articleImage/' . $filename;
