@@ -21,7 +21,7 @@ class ArticlesController extends Controller
     public function __construct()
     {
         $this->middleware('my.jwt.auth', [
-            'only' => ['store', 'update', 'destroy']
+            'only' => ['store', 'update', 'destroy', 'contentImage']
         ]);
     }
 
