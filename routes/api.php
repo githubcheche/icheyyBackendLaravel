@@ -20,7 +20,7 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 Route::group([
     'middleware' => ['cors'],
     'prefix' => 'v1',
-], function() {
+], function () {
     // test
     Route::get('/cheyy', function (Request $request) {
         return 'hello cheyy';
@@ -35,6 +35,7 @@ Route::group([
     //文章分类
     Route::resource('articles', 'Article\ArticlesController'); //文章
     Route::get('hot_articles', 'Article\ArticlesController@hotArticles'); //获取热门话题
+    Route::post('content_image', 'Article\ArticlesController@contentImage'); //上传文章图片
 
     Route::resource('tags', 'Article\TagsController'); //标签
     Route::get('hot_tags', 'Article\TagsController@hotTags'); //获取分类标签

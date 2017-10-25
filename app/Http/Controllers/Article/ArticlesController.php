@@ -190,6 +190,22 @@ class ArticlesController extends Controller
         return $this->responseSuccess('查询成功', $hotArticles);
     }
 
+    /**
+     * 文章图片上传
+     * 文件名为时间的md5值加后缀
+     * 存放在/storage/app/public/articleImage下
+     * 返回值图片文件路径
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    function contentImage(Request $request)
+    {
+        $file = $request->file('image');
+        $filename = md5(time()) . '.' . $file->getClientOriginalExtension();
+        $file->move(public_path('../storage/app/public/articleImage'), $filename);
+        $article_image = env('API_URL') . '/storage/articleImage/' . $filename;
+        return $this->responseSuccess('查询成功', ['url' => $article_image]);
+    }
 
 /////////////////////////////////////////////////////////////////////////////////////
 
@@ -249,13 +265,6 @@ class ArticlesController extends Controller
     }
 
 
-    function contentImage(Request $request)
-    {
-        $file = $request->file('image');
-        $filename = md5(time()) . '.' . $file->getClientOriginalExtension();
-        $file->move(public_path('../storage/app/public/articleImage'), $filename);
-        $article_image = env('API_URL') . '/storage/articleImage/' . $filename;
-        return $this->responseSuccess('查询成功', ['url' => $article_image]);
-    }
+
 
 }

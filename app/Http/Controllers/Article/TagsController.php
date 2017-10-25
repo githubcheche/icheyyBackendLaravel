@@ -9,7 +9,9 @@ use Illuminate\Support\Facades\Cache;
 
 class TagsController extends Controller
 {
-    public function __construct(){}
+    public function __construct()
+    {
+    }
 
     /**
      * 获取所有标签
