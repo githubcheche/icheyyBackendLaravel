@@ -41,5 +41,14 @@ Route::group([
     Route::get('hot_tags', 'Article\TagsController@hotTags'); //获取分类标签
 
     Route::get('categories', 'Article\CategoriesController@index'); //获取文章的分类
+
+
+    //用户相关
+    Route::get('article/is_like','Article\LikesController@isLike'); // +/id(article_id) 用户是否点赞了一个话题
+    Route::get('article/like','Article\LikesController@likeThisArticle'); //用户点赞一个话题
+    Route::get('user/is_follow','Article\FollowsController@isFollow'); //+/id(user_id) 用户是否关注一个用户
+    Route::get('user/follow','Article\FollowsController@followThisUser'); //+/id(user_id) 用户关注一个用户
+
+
 });
 

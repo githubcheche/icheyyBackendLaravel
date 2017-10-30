@@ -1,13 +1,11 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Comment;
 
-use App\Article;
-use App\User;
-use Cache;
+use App\Comment;
 use Illuminate\Http\Request;
 
-class UsersController extends Controller
+class CommentsController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -43,34 +41,21 @@ class UsersController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
+     * @param  \App\Comment  $comment
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show(Comment $comment)
     {
-        if (empty($user = Cache::get('users_cache' . $id))) {
-            $user = User::findOrFail($id);
-            Cache::put('users_cache' . $id, $user, 10);
-        }
-        return $this->responseSuccess('查询成功', $user);
-    }
-
-    public function userArticles($id)
-    {
-        if (empty($articles = Cache::get('user_articles' . $id))) {
-            $articles = Article::where('user_id', $id)->latest('created_at')->get();
-            Cache::put('user_articles' . $id, $articles, 10);
-        }
-        return $this->responseSuccess('查询成功', $articles);
+        //
     }
 
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int  $id
+     * @param  \App\Comment  $comment
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function edit(Comment $comment)
     {
         //
     }
@@ -79,10 +64,10 @@ class UsersController extends Controller
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
+     * @param  \App\Comment  $comment
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, Comment $comment)
     {
         //
     }
@@ -90,10 +75,10 @@ class UsersController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param  \App\Comment  $comment
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(Comment $comment)
     {
         //
     }
