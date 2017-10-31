@@ -42,12 +42,15 @@ Route::group([
 
     Route::get('categories', 'Article\CategoriesController@index'); //获取文章的分类
 
+    Route::get('articles/{article}/comments', 'Comment\CommentsController@index'); //获取文章的评论
+    Route::get('articles/{article}/child_comments', 'Comment\CommentsController@childComments'); // +/?parent_id=(comment_id)  获取文章的子评论
+    Route::post('comments', 'Comment\CommentsController@store'); //增加文章的评论
 
     //用户相关
-    Route::get('article/is_like','Article\LikesController@isLike'); // +/id(article_id) 用户是否点赞了一个话题
-    Route::get('article/like','Article\LikesController@likeThisArticle'); //+/id(article_id) 切换用户点赞一个话题
-    Route::get('user/is_follow','Article\FollowsController@isFollow'); //+/id(user_id) 用户是否关注一个用户
-    Route::get('user/follow','Article\FollowsController@followThisUser'); //+/id(user_id) 切换用户关注一个用户
+    Route::get('article/is_like','Article\LikesController@isLike'); // +/?id=(article_id) 用户是否点赞了一个话题
+    Route::get('article/like','Article\LikesController@likeThisArticle'); //+/?id=(article_id) 切换用户点赞一个话题
+    Route::get('user/is_follow','Article\FollowsController@isFollow'); //+/?id=(user_id) 用户是否关注一个用户
+    Route::get('user/follow','Article\FollowsController@followThisUser'); //+/?id=(user_id) 切换用户关注一个用户
 
 
 });
