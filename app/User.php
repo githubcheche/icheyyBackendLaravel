@@ -54,7 +54,7 @@ class User extends Authenticatable implements AuthenticatableUserContract
      * @param $article_id
      * @return array
      */
-    public function likeThis($article_id)
+    public function toggleLike($article_id)
     {
         return $this->likes()->toggle($article_id);//toggle如果给定 ID 已附加，就会被移除。同样的，如果给定 ID 已移除，就会被附加
     }
@@ -74,7 +74,7 @@ class User extends Authenticatable implements AuthenticatableUserContract
      * 关注其他人，获取本用户关注的所有人
      * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      */
-    public function followers()
+    public function followeds()
     {
         return $this->belongsToMany(self::class, 'followers', 'follower_id', 'followed_id')->withTimestamps();
     }
@@ -89,13 +89,13 @@ class User extends Authenticatable implements AuthenticatableUserContract
     }
 
     /**
-     * 用户切换关注一个话题
-     * @param $user_id
+     * 本用户切换关注一个用户
+     * @param $followed_id 被关注者id
      * @return array
      */
-    public function followThisUser($user_id)
+    public function toggleFollow($followed_id)
     {
-        return $this->followers()->toggle($user_id);//toggle如果给定 ID 已附加，就会被移除。同样的，如果给定 ID 已移除，就会被附加
+        return $this->followeds()->toggle($followed_id);//toggle,只有在多对多关系后使用，如果给定$followed_id已附加，就会被移除。同样的，如果给定$followed_id已移除，就会被附加
     }
 
 

@@ -41,7 +41,7 @@ class LikesController extends Controller
     {
         $user =  \Auth::user();
         $article  = Article::where('id', ($request->get('id')))->first();//获取文章
-        $liked = $user->likeThis($article->id);//切换点赞文章
+        $liked = $user->toggleLike($article->id);//切换点赞文章
         if (count($liked['detached']) > 0) { //如果是取消点赞
             $user->decrement('likes_count');
             $article->decrement('likes_count');
