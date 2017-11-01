@@ -49,9 +49,17 @@ Route::group([
     //用户相关
     Route::get('article/is_like','Article\LikesController@isLike'); // +/?id=(article_id) 用户是否点赞了一个话题
     Route::get('article/like','Article\LikesController@likeThisArticle'); //+/?id=(article_id) 切换用户点赞一个话题
+
     Route::get('user/is_follow','Article\FollowsController@isFollow'); //+/?id=(user_id) 用户是否关注一个用户
     Route::get('user/follow','Article\FollowsController@followThisUser'); //+/?id=(user_id) 切换用户关注一个用户
 
+    Route::resource('users', 'UsersController');// users/id 查询指定用户； users/
+    Route::get('users/{user}/articles', 'UsersController@userArticles'); //用户发表的文章
+    Route::get('users/{user}/replies', 'UsersController@userReplies'); //用户的回复
+    Route::get('users/{user}/likes','UsersController@userLikesArticles'); //用户所有点赞话题
+    Route::post('edit_user_info', 'UsersController@editUserInfo'); //修改个人信息
+    Route::post('edit_password', 'UsersController@editPassword'); //修改密码
+    Route::post('avatar/upload', 'UsersController@avatarUpload'); //上传头像
 
 });
 
