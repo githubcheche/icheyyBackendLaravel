@@ -53,11 +53,11 @@ Route::group([
     Route::get('user/is_follow','Article\FollowsController@isFollow'); //+/?id=(user_id) 用户是否关注一个用户
     Route::get('user/follow','Article\FollowsController@followThisUser'); //+/?id=(user_id) 切换用户关注一个用户
 
-    Route::resource('users', 'UsersController');// users/id 查询指定用户； users/
+    Route::resource('users', 'UsersController');// users/id 查询指定用户； users/ 修改个人信息
     Route::get('users/{user}/articles', 'UsersController@userArticles'); //用户发表的文章
     Route::get('users/{user}/replies', 'UsersController@userReplies'); //用户的回复
     Route::get('users/{user}/likes','UsersController@userLikesArticles'); //用户所有点赞话题
-    Route::post('edit_user_info', 'UsersController@editUserInfo'); //修改个人信息
+//    Route::post('edit_user_info', 'UsersController@editUserInfo');
     Route::post('edit_password', 'UsersController@editPassword'); //修改密码
     Route::post('avatar/upload', 'UsersController@avatarUpload'); //上传头像
 

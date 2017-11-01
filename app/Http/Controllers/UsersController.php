@@ -161,15 +161,19 @@ class UsersController extends Controller
     /**
      * Update the specified resource in storage.
      * 本用户信息修改
-     * PUT/PATCH /user/{id}
+     * PUT/PATCH /users/{id}
      * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id)
     {
-        $data = ['real_name' => request('real_name'), 'city' => request('city')];
-        Auth::user()->update($data);
+        $data = ['real_name' => $request->get('real_name'), 'city' => $request->get('city')];
+        $user = Auth::user();
+        $user->real_name = request('real_name');
+        $user->city = request('city');
+        $user->save();
+
         return $this->responseSuccess('个人信息修改成功', $data);
     }
 
