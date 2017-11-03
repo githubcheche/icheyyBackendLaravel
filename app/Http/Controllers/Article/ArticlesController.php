@@ -142,6 +142,7 @@ class ArticlesController extends Controller
         $validator = Validator::make($request->all(), [
             'title' => 'required|between:4,100',
             'body' => 'required|min:10',
+            'cover' => $request->get('cover'),
             'tag' => 'required',
             'is_hidden' => 'required',
             'category' => 'required'
