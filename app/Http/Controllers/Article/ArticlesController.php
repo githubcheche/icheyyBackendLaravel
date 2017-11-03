@@ -39,7 +39,6 @@ class ArticlesController extends Controller
 
         // 取得page参数
         if ($request->has('page')) {
-            dd('page=' . $page);
             $page = $request->input('page');
         }
 
