@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Tag;
 
 use Carbon\Carbon;
+use Image;
 use Validator;
 use Illuminate\Http\Request;
 
@@ -101,6 +102,7 @@ class ArticlesController extends Controller
         $data = [
             'title' => $request->get('title'),
             'body' => $request->get('body'),
+            'cover' => $request->get('cover'),
             'user_id' => \Auth::id(),
             'is_hidden' => $request->get('is_hidden'),
             'category_id' => $request->get('category'),
@@ -214,6 +216,22 @@ class ArticlesController extends Controller
         return $this->responseSuccess('查询成功', ['url' => $article_image]);
     }
 
+    /**
+     * 上传封面
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    function coverImage(Request $request)
+    {
+        $file = $request->file('file');
+        $filename = md5(time()) . '.' . $file->getClientOriginalExtension();
+        $file->move(public_path('../storage/app/public/articleImage/cover'), $filename);
+        Image::configure(array('driver' => 'imagick'));
+        Image::make(public_path('../storage/app/public/articleImage/cover' . $filename))->fit(300, 200)->save();
+        $article_image = env('API_URL') . '/storage/articleImage/cover'.$filename;
+        return $this->responseSuccess('查询成功', ['url' => $article_image]);
+    }
+
 /////////////////////////////////////////////////////////////////////////////////////
 
     /**
@@ -228,14 +246,14 @@ class ArticlesController extends Controller
 //        Cache::tags('articles')->flush();
         if (empty($request->tag)) {//没有tag参数
             return \Cache::tags('articles')->remember('articles' . $page, $minutes = 10, function () {
-                return Article::notHidden()->with('user', 'tags', 'category')->latest('created_at')->paginate(30);
+                return Article::notHidden()->with('user', 'tags', 'category')->latest('created_at')->paginate(15);
             });
         } else {
             return \Cache::tags('articles')->remember('articles' . $page . $request->tag, $minutes = 10, function () use ($request) {
                 //查找有tags的文章，并且tag表中的name与url中的tag参数相同
                 return Article::notHidden()->whereHas('tags', function ($query) use ($request) {
                     $query->where('name', $request->tag);
-                })->with('user', 'tags', 'category')->latest('created_at')->paginate(30);
+                })->with('user', 'tags', 'category')->latest('created_at')->paginate(15);
             });
         }
     }
