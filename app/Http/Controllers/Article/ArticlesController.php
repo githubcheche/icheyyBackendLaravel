@@ -226,8 +226,8 @@ class ArticlesController extends Controller
         $filename = md5(time()) . '.' . $file->getClientOriginalExtension();
         $file->move(public_path('../storage/app/public/articleImage/cover'), $filename);
         Image::configure(array('driver' => 'imagick'));
-        Image::make(public_path('../storage/app/public/articleImage/cover' . $filename))->fit(300, 200)->save();
-        $article_image = env('API_URL') . '/storage/articleImage/cover'.$filename;
+        Image::make(public_path('../storage/app/public/articleImage/cover/' . $filename))->fit(300, 200)->save();
+        $article_image = env('API_URL') . '/storage/articleImage/cover/'.$filename;
         return $this->responseSuccess('查询成功', ['url' => $article_image]);
     }
 
