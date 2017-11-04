@@ -232,6 +232,16 @@ class ArticlesController extends Controller
         return $this->responseSuccess('查询成功', ['url' => $article_image]);
     }
 
+    /**
+     * 搜索
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function search()
+    {
+        $articles = Article::search(request('q'), null, true)->with('user')->paginate(10);
+        return $this->responseSuccess('查询成功', $articles);
+    }
+
 /////////////////////////////////////////////////////////////////////////////////////
 
     /**

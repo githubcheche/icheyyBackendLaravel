@@ -3,6 +3,7 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use Nicolaslopezj\Searchable\SearchableTrait;
 
 /**
  * Class article 文章模型
@@ -10,6 +11,8 @@ use Illuminate\Database\Eloquent\Model;
  */
 class Article extends Model
 {
+    use SearchableTrait;
+
     /**
      * The attributes that are mass assignable.
      * new对象时可填充字段
@@ -18,6 +21,15 @@ class Article extends Model
     protected $fillable = [
         'title', 'body', 'user_id','last_comment_time', 'cover',
     ];
+
+
+    protected $searchable = [
+        'columns' => [
+            'articles.title' => 10,
+            'articles.body'  => 5,
+        ]
+    ];
+
 
     /**
      *　获取用户的所有文章

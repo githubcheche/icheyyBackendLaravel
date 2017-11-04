@@ -2,6 +2,8 @@
 
 namespace App;
 
+use Cache;
+use Carbon\Carbon;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Tymon\JWTAuth\Contracts\JWTSubject as AuthenticatableUserContract;
@@ -98,6 +100,42 @@ class User extends Authenticatable implements AuthenticatableUserContract
         return $this->followeds()->toggle($followed_id);//toggle,只有在多对多关系后使用，如果给定$followed_id已附加，就会被移除。同样的，如果给定$followed_id已移除，就会被附加
     }
 
+    /**
+     * 记录最后活跃时间
+     */
+    public function recordLastActivedAt()
+    {
+        // 这个 Redis 用于数据库更新，数据库每同步一次则清空一次该 Redis 。
+        $data = Cache::get('actived_time_for_update');
+        $data[$this->id] = Carbon::now()->toDateTimeString();
+        Cache::forever('actived_time_for_update', $data);
+
+        // 这个 Redis 用于读取，每次要获取活跃时间时，先到该 Redis 中获取数据。
+        $data = Cache::get('actived_time');
+        $data[$this->id] = Carbon::now()->toDateTimeString();
+        Cache::forever('actived_time', $data);
+
+    }
+
+
+    /**
+     * 获取最后的在线时间
+     * @return mixed
+     */
+    public function lastActivedTime()
+    {
+        $data = \Cache::get('actived_time');
+        if(empty($data[$this->id])){
+            $data[$this->id] = $this->last_actived_at;
+        }
+        return $data[$this->id];
+    }
+
+    public function getIsOnLineAttribute()
+    {
+        $key = \Redis::hExists('USERS', $this->id);
+        return $key;
+    }
 
 
 
