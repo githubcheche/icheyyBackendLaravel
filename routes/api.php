@@ -30,6 +30,8 @@ Route::group([
     Route::any('user/login', 'AuthController@login'); //登录认证
     Route::post('user/register', 'AuthController@register'); //注册
     Route::get('user/logout', 'AuthController@logout'); //退出
+    Route::get('verify_email', 'AuthController@verifyToken'); //验证注册码
+
 
 
     //文章分类

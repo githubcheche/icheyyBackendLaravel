@@ -3,9 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\User;
+use Auth;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 
+use JWTAuth;
+use Mail;
+use Naux\Mail\SendCloudTemplate;
 use Tymon\JWTAuth\Exceptions\JWTException;
 use Tymon\JWTAuth\Exceptions\TokenBlacklistedException;
 use Validator;
@@ -41,7 +45,7 @@ class AuthController extends Controller
         ];
 
         $user = User::create($newUser);
-//        $this->sendVerifyEmailTo($user);
+        $this->sendVerifyEmailTo($user);
 //        $user->attachRole(3);
 
         return $this->responseSuccess('感谢您支持Cheyy小镇，请前往邮箱激活该用户');
@@ -70,9 +74,9 @@ class AuthController extends Controller
                 return $this->responseError('用户名或密码错误');
             }
             $user = \Auth::user();
-//            if ($user->is_confirmed == 0) {
-//                return $this->responseError('您还未激活该账号，请先前往邮箱激活');
-//            }
+            if ($user->is_confirmed == 0) {
+                return $this->responseError('您还未激活该账号，请先前往邮箱激活');
+            }
             // 设置JWT令牌
             $user->jwt_token = [
                 'access_token' => $token,
@@ -95,6 +99,45 @@ class AuthController extends Controller
             // 忽略该异常（Authorization为空时会发生）
         }
         return $this->responseSuccess('登出成功');
+    }
+
+    /**
+     * 验证邮件发送
+     * @param $user
+     */
+    private function sendVerifyEmailTo($user)
+    {
+        $data = [ 'url' => 'http://www.icheyy.top/#/verify_email/' . $user->confirm_code,
+            'name' => $user->name ];
+        $template = new SendCloudTemplate('cheyy_verify', $data);
+
+        Mail::raw($template, function ($message) use ($user) {
+            $message->from('root@icheyy.top', 'icheyy.top');
+            $message->to($user->email);
+        });
+    }
+
+    /**
+     * 验证邮箱并激活账户
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function verifyToken()
+    {
+        $user = User::where('confirm_code', Request('code'))->first();
+        if (empty($user)) {
+            return $this->responseError('激活失败');
+        }
+        $user->is_confirmed = 1;
+        $user->confirm_code = str_random(60);
+        $user->save();
+        Auth::login($user);
+
+        $token = JWTAuth::fromUser($user);
+        $user->jwt_token = [
+            'access_token' => $token,
+            'expires_in' => Carbon::now()->addMinutes(config('jwt.ttl'))->timestamp
+        ];
+        return $this->responseSuccess('注册成功', $user);
     }
 
 }
