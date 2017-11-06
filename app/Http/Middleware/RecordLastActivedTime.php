@@ -5,6 +5,11 @@ namespace App\Http\Middleware;
 use Closure;
 use Tymon\JWTAuth\Http\Middleware\BaseMiddleware;
 
+/**
+ * 更新用户在线时间中间件
+ * Class RecordLastActivedTime
+ * @package App\Http\Middleware
+ */
 class RecordLastActivedTime extends BaseMiddleware
 {
     /**
