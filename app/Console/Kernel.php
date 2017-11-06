@@ -5,6 +5,11 @@ namespace App\Console;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
+/**
+ * 定时任务，更新用户最后活跃时间
+ * Class Kernel
+ * @package App\Console
+ */
 class Kernel extends ConsoleKernel
 {
     /**
