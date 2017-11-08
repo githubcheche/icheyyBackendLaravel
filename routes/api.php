@@ -81,7 +81,7 @@ Route::group([
 //});
 
 Route::group([
-    'middleware' => ['cors', /*'jwt.auth', 'check.permission'*/],
+    'middleware' => ['cors', 'jwt.auth', 'check.permission'],
     'namespace' => 'Admin',
     'prefix' => 'v1/admin',
 ], function() {

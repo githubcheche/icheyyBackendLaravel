@@ -38,6 +38,7 @@ class Kernel extends HttpKernel
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
         'my.jwt.auth' => \App\Http\Middleware\JwtAuthenticate::class,
         'cors' => \Barryvdh\Cors\HandleCors::class,
+        'check.permission' => \App\Http\Middleware\CheckPermissions::class,
     ];
 
     /**
