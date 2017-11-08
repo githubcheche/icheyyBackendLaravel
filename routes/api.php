@@ -72,11 +72,24 @@ Route::group([
 | 后台管理的 API 接口
 |--------------------------------------------------------------------------
 */
+//Route::group([
+//    'middleware' => 'cors',
+//    'namespace' => 'Admin',
+//    'prefix' => 'v1/admin',
+//], function() {
+//    Route::post('login', 'AuthController@login'); //后台登录
+//});
+
 Route::group([
-    'middleware' => 'cors',
+    'middleware' => ['cors', /*'jwt.auth', 'check.permission'*/],
     'namespace' => 'Admin',
     'prefix' => 'v1/admin',
 ], function() {
-    Route::post('login', 'AuthController@login'); //后台登录
+    Route::get('menu', 'MenusController@getSidebarTree')->name('users.menu'); //获取后台左侧菜单
+    Route::get('group_permissions', 'PermissionsController@groupPermissions'); //获取权限组
+    Route::resource('roles', 'RolesController');
+    Route::resource('users', 'UsersController');
+    Route::resource('menus', 'MenusController');
+    Route::resource('permissions', 'PermissionsController');
+    Route::get('logout', 'LoginController@logout');
 });
-

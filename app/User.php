@@ -7,10 +7,11 @@ use Carbon\Carbon;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Tymon\JWTAuth\Contracts\JWTSubject as AuthenticatableUserContract;
+use Zizaco\Entrust\Traits\EntrustUserTrait;
 
 class User extends Authenticatable implements AuthenticatableUserContract
 {
-    use Notifiable;
+    use Notifiable, EntrustUserTrait;
 
     /**
      * The attributes that are mass assignable.
