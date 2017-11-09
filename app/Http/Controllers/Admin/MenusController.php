@@ -24,6 +24,7 @@ class MenusController extends Controller
     }
 
     /**
+     * 获取后台左侧菜单
      * @param Request $request
      * @return \Illuminate\Http\JsonResponse
      */

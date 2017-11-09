@@ -51,7 +51,7 @@ class PermissionRepository
         $permissions = $this->permission->orderBy('name', 'desc')->get();
         $array = [];
         foreach ($permissions as $permission) {
-            array_set($array, $permission->name, $permission);
+            array_set($array, $permission->name, $permission);//array_set方法在嵌套数组中使用”.“号分解嵌套
         }
 
         return $array;

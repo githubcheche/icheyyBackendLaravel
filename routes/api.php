@@ -91,5 +91,5 @@ Route::group([
     Route::resource('users', 'UsersController');
     Route::resource('menus', 'MenusController');
     Route::resource('permissions', 'PermissionsController');
-    Route::get('logout', 'LoginController@logout');
+    //Route::get('logout', 'LoginController@logout');
 });

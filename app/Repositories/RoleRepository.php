@@ -99,7 +99,7 @@ class RoleRepository
     }
 
     /**
-     * 跟新角色
+     * 更新角色
      * @param $request
      * @param $id
      * @return mixed

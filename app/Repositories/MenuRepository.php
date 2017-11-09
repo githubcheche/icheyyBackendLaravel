@@ -82,19 +82,19 @@ class MenuRepository
         }
         return $sidebar_menus;*/
 
+        //数据库菜单表按sort排序
         $menus = $this->menu->orderBy('sort' ,'asc')->get()->toArray();
-        $sidebar_menus = array();
+        $sidebar_menus = array();// 用户菜单列表
 
-        if (!empty($menus)) {
+        if (!empty($menus)) {// 数据库菜单表不为空
             foreach ($menus as $menu) {
                 //权限验证匹配uri验证uri对应权限
-                $permission_info = $this->permission->where(['uri' => $menu['name']])->pluck('name');
+                $permission_info = $this->permission->where(['uri' => $menu['name']])->pluck('name');//根据菜单中name字段来查找权限表中的权限
 
-                //不存在权限验证的直接通过，比如一级菜单
-                if (!empty($permission_info)) {
+                if (!empty($permission_info)) {//权限表中找不到此菜单的name字段直接通过
                     $permissions = Auth::user()->roles()->first()
-                        ->perms()->pluck('name')->toArray(); //获取当前用户所有权限名
-                    if (!in_array(implode($permission_info->toArray()), $permissions)) {
+                        ->perms()->pluck('name')->toArray(); //获取当前用户所被授权的所有权限
+                    if (!in_array(implode($permission_info->toArray()), $permissions)) {// 在本用户角色关联权限表中找不到相关权限
                         continue;
                     }  //根据路由名称查询权限
                     //用户权限检查，不存在的权限不显示
