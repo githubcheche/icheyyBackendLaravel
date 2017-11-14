@@ -159,9 +159,24 @@ class ArticlesController extends Controller
             'is_hidden' => $request->get('is_hidden'),
             'category_id' => $request->get('category'),
         ];
+
+
         $article = Article::find($id);//取出文章
         $article->update($data);//更新文章
-        $article->tags()->sync($tags);//更新tag
+        if ($addTags = $this->editTopics($request->get('tag'), $id)) {
+            foreach ($addTags as $addTag) {
+                if(! is_numeric($addTag)){
+                    $article->tags()->create([
+                        'name' => $addTag,
+                        'articles_count' => 1,
+                    ]);
+                } else {
+                    $article->tags()->attach($addTag);
+                    Tag::where('id', $addTag)->increment('count', 1);
+                }
+            }
+        }
+
         \Cache::tags('articles')->flush();//清除文章cache缓存
         return $this->responseSuccess('OK', $article);
     }
@@ -300,6 +315,28 @@ class ArticlesController extends Controller
     }
 
 
+    public function editTopics($tags, $id)
+    {
+        $oldTags = Article::find($id)->tags->pluck('id')->toArray();
+        $reduceTags = array_diff($oldTags, $tags);
+        $addTags = array_diff($tags, $oldTags);
 
+        foreach($reduceTags as $reduceTag) {
+            $tag = Tag::where('id', $reduceTag);
+            $tagCount = $tag->count();
+            if ($tagCount > 1) {
+                \DB::table('article_tag')->where('tag_id', $reduceTag)->where('article_id', $id)->delete();
+                $tag->decrement('count', 1);
+            } else {
+                $tag->delete();
+            }
+        }
+
+        if (! is_null($addTags)) {
+            return $addTags;
+        } else {
+            return false;
+        }
+    }
 
 }
