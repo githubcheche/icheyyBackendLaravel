@@ -151,7 +151,6 @@ class ArticlesController extends Controller
             return $this->responseError('表单验证失败', $validator->errors()->toArray());
         }
 
-        $tags = $this->normalizeTopics($request->get('tag'));
         $data = [
             'title' => $request->get('title'),
             'body' => $request->get('body'),
